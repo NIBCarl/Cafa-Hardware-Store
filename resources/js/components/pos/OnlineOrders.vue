@@ -53,9 +53,10 @@
       <div
         v-for="order in orders"
         :key="order.id"
-        class="border border-gray-200 rounded-lg p-4 hover:border-primary-500 transition-colors"
+        class="bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-lg p-4 hover:border-primary-500 hover:shadow-md transition-all duration-200"
       >
-        <div class="flex justify-between items-start mb-2">
+        <!-- Header: Order Number and Status -->
+        <div class="flex justify-between items-start mb-3">
           <div>
             <h3 class="text-sm font-semibold text-gray-900">{{ order.order_number }}</h3>
             <p class="text-xs text-gray-500 mt-1">
@@ -64,21 +65,62 @@
           </div>
           <span
             :class="getStatusClass(order.status)"
-            class="px-2 py-1 text-xs font-medium rounded-full"
+            class="px-2 py-1 text-xs font-medium rounded-full shadow-sm"
           >
             {{ getStatusLabel(order.status) }}
           </span>
         </div>
 
-        <div class="flex justify-between items-center text-sm mb-3">
-          <span class="text-gray-600">{{ order.items?.length || 0 }} item(s)</span>
-          <span class="font-bold text-primary-600">₱{{ formatAmount(order.total_amount) }}</span>
+        <!-- Order Details Card -->
+        <div class="bg-white rounded-md shadow-sm p-3 mb-3 border border-gray-100">
+          <!-- Items and Total -->
+          <div class="flex justify-between items-center text-sm mb-2 pb-2 border-b border-gray-100">
+            <span class="text-gray-600">{{ order.items?.length || 0 }} item(s)</span>
+            <span class="font-bold text-primary-600">₱{{ formatAmount(order.total_amount) }}</span>
+          </div>
+
+          <!-- Payment & Delivery Info Grid -->
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <!-- Payment Method -->
+            <div class="bg-gray-50 rounded p-2">
+              <p class="text-gray-500 text-[10px] uppercase tracking-wide mb-1">Payment</p>
+              <p class="font-medium text-gray-900">{{ formatPaymentMethod(order.payment_method) }}</p>
+              
+              <!-- Payment Receipt View Icon (for GCash) -->
+              <div v-if="order.payment_proof_url" class="mt-1">
+                <button
+                  @click="viewReceipt(order)"
+                  class="inline-flex items-center gap-1 text-primary-600 hover:text-primary-700 transition-colors"
+                  title="View receipt"
+                >
+                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <span class="text-[10px]">View Receipt</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Delivery Method -->
+            <div class="bg-gray-50 rounded p-2">
+              <p class="text-gray-500 text-[10px] uppercase tracking-wide mb-1">Delivery</p>
+              <p class="font-medium text-gray-900">{{ formatDeliveryMethod(order.delivery_method) }}</p>
+            </div>
+          </div>
+
+          <!-- Delivery Address (conditionally shown) -->
+          <div v-if="order.delivery_method === 'delivery' && order.delivery_address" class="mt-2 pt-2 border-t border-gray-100">
+            <p class="text-gray-500 text-[10px] uppercase tracking-wide mb-1">Delivery Address</p>
+            <p class="text-xs text-gray-900 leading-relaxed">{{ order.delivery_address }}</p>
+          </div>
         </div>
 
+        <!-- Load to Cart Button -->
         <button
           @click="handleLoadOrder(order)"
           :disabled="loadingOrderId === order.id"
-          class="w-full bg-primary-600 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="w-full bg-primary-600 text-white py-2 px-4 rounded-md text-sm font-medium hover:bg-primary-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
         >
           <span v-if="loadingOrderId === order.id">Loading...</span>
           <span v-else>Load to Cart</span>
@@ -86,6 +128,67 @@
       </div>
     </div>
   </div>
+
+  <!-- Receipt Modal -->
+  <Teleport to="body">
+    <Transition name="modal">
+      <div
+        v-if="showReceiptModal"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
+        @click.self="closeReceiptModal"
+      >
+        <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+          <!-- Modal Header -->
+          <div class="flex justify-between items-center p-4 border-b border-gray-200 bg-gradient-to-r from-primary-50 to-primary-100">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900">Payment Receipt</h3>
+              <p class="text-sm text-gray-600 mt-1">{{ selectedOrder?.order_number }}</p>
+            </div>
+            <button
+              @click="closeReceiptModal"
+              class="text-gray-500 hover:text-gray-700 transition-colors p-1 rounded-full hover:bg-white"
+            >
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Modal Body - Receipt Image -->
+          <div class="p-4 bg-gray-50 overflow-y-auto max-h-[calc(90vh-120px)]">
+            <div class="bg-white rounded-lg shadow-inner p-2">
+              <img
+                :src="selectedOrder?.payment_proof_url"
+                :alt="`Receipt for ${selectedOrder?.order_number}`"
+                class="w-full h-auto rounded"
+                @error="handleImageError"
+              />
+            </div>
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="flex justify-end gap-2 p-4 border-t border-gray-200 bg-gray-50">
+            <a
+              :href="selectedOrder?.payment_proof_url"
+              target="_blank"
+              class="px-4 py-2 text-sm font-medium text-primary-600 bg-primary-50 rounded-md hover:bg-primary-100 transition-colors inline-flex items-center gap-2"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              Open in New Tab
+            </a>
+            <button
+              @click="closeReceiptModal"
+              class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 hover:shadow-lg transition-all duration-200"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup>
@@ -100,6 +203,8 @@ const toastStore = useToastStore();
 const orders = ref([]);
 const loading = ref(false);
 const loadingOrderId = ref(null);
+const showReceiptModal = ref(false);
+const selectedOrder = ref(null);
 
 // Emit event when order is loaded
 const emit = defineEmits(['order-loaded']);
@@ -179,6 +284,41 @@ const getStatusClass = (status) => {
   return classes[status] || 'bg-gray-100 text-gray-800';
 };
 
+const formatPaymentMethod = (method) => {
+  const methods = {
+    cash: 'Cash',
+    gcash: 'GCash',
+    digital_wallet: 'Digital Wallet',
+    bank_transfer: 'Bank Transfer'
+  };
+  return methods[method] || method;
+};
+
+const formatDeliveryMethod = (method) => {
+  const methods = {
+    pickup: 'Store Pickup',
+    delivery: 'Home Delivery'
+  };
+  return methods[method] || method;
+};
+
+const viewReceipt = (order) => {
+  if (order.payment_proof_url) {
+    selectedOrder.value = order;
+    showReceiptModal.value = true;
+  }
+};
+
+const closeReceiptModal = () => {
+  showReceiptModal.value = false;
+  selectedOrder.value = null;
+};
+
+const handleImageError = (event) => {
+  console.error('Failed to load receipt image');
+  toastStore.error('Failed to load receipt image');
+};
+
 onMounted(() => {
   loadOrders();
   
@@ -213,6 +353,30 @@ import { onBeforeUnmount } from 'vue';
 
 .max-h-96::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+/* Modal transitions */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-active .bg-white,
+.modal-leave-active .bg-white {
+  transition: transform 0.3s ease;
+}
+
+.modal-enter-from .bg-white {
+  transform: scale(0.9);
+}
+
+.modal-leave-to .bg-white {
+  transform: scale(0.9);
 }
 </style>
 

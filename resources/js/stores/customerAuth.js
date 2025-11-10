@@ -17,7 +17,10 @@ export const useCustomerAuthStore = defineStore('customerAuth', () => {
   const token = ref(localStorage.getItem('customer_token'));
   const isLoading = ref(false);
 
-  const isAuthenticated = computed(() => !!customer.value);
+  // Check token instead of customer to fix refresh issue
+  const isAuthenticated = computed(() => !!token.value);
+  // Separate check for whether profile data is loaded
+  const isProfileLoaded = computed(() => !!customer.value);
 
   // Set auth headers on customer-specific axios instance
   if (token.value) {
@@ -106,6 +109,7 @@ export const useCustomerAuthStore = defineStore('customerAuth', () => {
     token,
     isLoading,
     isAuthenticated,
+    isProfileLoaded,
     register,
     login,
     logout,

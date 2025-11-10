@@ -23,11 +23,28 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useToastStore } from './stores/toast';
+import { useCustomerAuthStore } from './stores/customerAuth';
 
 const toastStore = useToastStore();
 const toasts = computed(() => toastStore.toasts);
+
+// Initialize customer profile on app load if token exists
+const customerAuthStore = useCustomerAuthStore();
+
+onMounted(async () => {
+  // If token exists but customer data not loaded, fetch profile
+  if (customerAuthStore.token && !customerAuthStore.customer) {
+    try {
+      await customerAuthStore.fetchProfile();
+    } catch (error) {
+      // Token expired/invalid, logout silently
+      console.error('Failed to restore customer session:', error);
+      await customerAuthStore.logout();
+    }
+  }
+});
 </script>
 
 <style>

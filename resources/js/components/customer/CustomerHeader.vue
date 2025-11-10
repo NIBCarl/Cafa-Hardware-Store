@@ -60,7 +60,15 @@
 
           <!-- User Menu -->
           <div v-if="authStore.isAuthenticated" class="relative">
+            <!-- Loading State - Profile data is being fetched -->
+            <div v-if="!authStore.isProfileLoaded" class="flex items-center space-x-2 bg-gray-100 px-3 py-2 rounded-lg shadow-sm">
+              <div class="h-8 w-8 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse"></div>
+              <div class="h-4 w-4 bg-gray-300 rounded animate-pulse"></div>
+            </div>
+            
+            <!-- Loaded State - Show user menu -->
             <button
+              v-else
               @click.stop="toggleMenu"
               class="flex items-center space-x-2 text-gray-700 hover:text-primary-600 focus:outline-none bg-gray-100 hover:bg-gradient-to-br hover:from-primary-50 hover:to-primary-100 px-3 py-2 rounded-lg transition-all shadow-sm hover:shadow-md"
               title="Account menu"
@@ -77,7 +85,7 @@
               </svg>
             </button>
 
-            <!-- Dropdown Menu -->
+            <!-- Dropdown Menu - Only show when profile is loaded -->
             <transition
               enter-active-class="transition ease-out duration-100"
               enter-from-class="transform opacity-0 scale-95"
@@ -87,7 +95,7 @@
               leave-to-class="transform opacity-0 scale-95"
             >
               <div
-                v-if="showUserMenu"
+                v-if="showUserMenu && authStore.isProfileLoaded"
                 v-click-outside="() => showUserMenu = false"
                 class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl py-2 z-50 border border-gray-200 overflow-hidden"
               >
