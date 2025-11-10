@@ -12,12 +12,8 @@ export const useCartStore = defineStore('cart', {
       }, 0);
     },
 
-    vatAmount() {
-      return this.subtotal * 0.12; // 12% VAT
-    },
-
     total() {
-      return this.subtotal + this.vatAmount;
+      return this.subtotal;
     },
 
     itemCount: (state) => {

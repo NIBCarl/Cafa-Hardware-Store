@@ -30,6 +30,14 @@
             >
               Refresh
             </BaseButton>
+            <!-- Export Format Selector -->
+            <select
+              v-model="exportFormat"
+              class="rounded-md border-gray-300 text-sm shadow-sm focus:border-primary-500 focus:ring-primary-500"
+            >
+              <option value="csv">CSV Format</option>
+              <option value="xlsx">Excel Format</option>
+            </select>
             <!-- Export Button -->
             <BaseButton
               variant="secondary"
@@ -308,6 +316,7 @@ const dateRange = reactive({
 });
 
 const salesTrendInterval = ref('daily');
+const exportFormat = ref('csv');
 const isExporting = ref(false);
 const isRefreshing = ref(false);
 const isLoadingSalesTrend = ref(false);
@@ -560,23 +569,37 @@ const exportReport = async () => {
     const response = await apiClient.get(`/reports/export`, {
       params: {
         start: dateRange.start,
-        end: dateRange.end
+        end: dateRange.end,
+        format: exportFormat.value
       },
       responseType: 'blob'
     });
-    const blob = new Blob([response.data], { type: 'text/csv' });
+    
+    // Determine MIME type and file extension based on format
+    const mimeType = exportFormat.value === 'xlsx' 
+      ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      : 'text/csv';
+    const fileExtension = exportFormat.value === 'xlsx' ? 'xlsx' : 'csv';
+    
+    const blob = new Blob([response.data], { type: mimeType });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `transactions-report-${dateRange.start}-to-${dateRange.end}.csv`;
+    a.download = `transactions-report-${dateRange.start}-to-${dateRange.end}.${fileExtension}`;
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
-    toastStore.success('Report exported successfully');
+    toastStore.success(`Report exported successfully as ${exportFormat.value.toUpperCase()}`);
   } catch (error) {
     console.error('Failed to export report:', error);
-    toastStore.error('Failed to export report');
+    // Handle validation errors from backend
+    if (error.response?.status === 422) {
+      const message = error.response.data?.message || 'Invalid export parameters';
+      toastStore.error(message);
+    } else {
+      toastStore.error('Failed to export report');
+    }
   } finally {
     isExporting.value = false;
   }

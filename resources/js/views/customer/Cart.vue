@@ -84,15 +84,7 @@
             <h2 class="text-xl font-semibold text-gray-900 mb-4">Order Summary</h2>
 
             <div class="space-y-3 mb-4">
-              <div class="flex justify-between text-sm">
-                <span class="text-gray-600">Subtotal</span>
-                <span class="font-medium">₱{{ formatPrice(cartStore.subtotal) }}</span>
-              </div>
-              <div class="flex justify-between text-sm">
-                <span class="text-gray-600">VAT (12%)</span>
-                <span class="font-medium">₱{{ formatPrice(cartStore.vatAmount) }}</span>
-              </div>
-              <div class="border-t pt-3 flex justify-between">
+              <div class="flex justify-between">
                 <span class="text-lg font-semibold">Total</span>
                 <span class="text-lg font-bold text-primary-600">₱{{ formatPrice(cartStore.total) }}</span>
               </div>

@@ -65,15 +65,7 @@
 
     <!-- Cart Summary -->
     <div class="border-t pt-4 space-y-2">
-      <div class="flex justify-between text-sm">
-        <span class="text-gray-600">Subtotal:</span>
-        <span class="font-medium">₱{{ cartStore.subtotal.toFixed(2) }}</span>
-      </div>
-      <div class="flex justify-between text-sm">
-        <span class="text-gray-600">VAT (12%):</span>
-        <span class="font-medium">₱{{ cartStore.vatAmount.toFixed(2) }}</span>
-      </div>
-      <div class="flex justify-between text-lg font-bold border-t pt-2">
+      <div class="flex justify-between text-lg font-bold">
         <span>Total:</span>
         <span class="text-primary-600">₱{{ cartStore.total.toFixed(2) }}</span>
       </div>
@@ -97,7 +89,7 @@
     <!-- Payment Method -->
     <div class="mt-4">
       <label class="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
-      <div class="grid grid-cols-3 gap-2">
+      <div class="grid grid-cols-2 gap-2">
         <button
           v-for="method in paymentMethods"
           :key="method.value"
@@ -152,7 +144,6 @@ const currentOrderId = ref(null);
 
 const paymentMethods = [
   { value: 'cash', label: 'Cash' },
-  { value: 'card', label: 'Card' },
   { value: 'digital_wallet', label: 'E-Wallet' },
 ];
 

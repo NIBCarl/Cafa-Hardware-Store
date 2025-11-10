@@ -12,12 +12,8 @@ export const useCustomerCartStore = defineStore('customerCart', () => {
     return items.value.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
   });
 
-  const vatAmount = computed(() => {
-    return subtotal.value * 0.12; // 12% VAT
-  });
-
   const total = computed(() => {
-    return subtotal.value + vatAmount.value;
+    return subtotal.value;
   });
 
   function addToCart(product, quantity = 1) {
@@ -80,7 +76,6 @@ export const useCustomerCartStore = defineStore('customerCart', () => {
     items,
     itemCount,
     subtotal,
-    vatAmount,
     total,
     addToCart,
     updateQuantity,
