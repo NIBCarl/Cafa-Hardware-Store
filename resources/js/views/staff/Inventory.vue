@@ -144,25 +144,44 @@
                       {{ product.is_active ? 'Active' : 'Inactive' }}
                     </span>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                    <button
-                      @click="openStockModal(product)"
-                      class="text-primary-600 hover:text-primary-900"
-                    >
-                      Adjust Stock
-                    </button>
-                    <button
-                      @click="openProductModal(product)"
-                      class="text-primary-600 hover:text-primary-900"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      @click="deleteProduct(product)"
-                      class="text-red-600 hover:text-red-900"
-                    >
-                      Delete
-                    </button>
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div class="flex items-center justify-end gap-2">
+                      <!-- Adjust Stock Button -->
+                      <button
+                        @click="openStockModal(product)"
+                        class="action-btn action-btn-adjust group"
+                        title="Adjust Stock"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                        </svg>
+                        <span class="action-btn-text">Adjust Stock</span>
+                      </button>
+                      
+                      <!-- Edit Button -->
+                      <button
+                        @click="openProductModal(product)"
+                        class="action-btn action-btn-edit group"
+                        title="Edit Product"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <span class="action-btn-text">Edit</span>
+                      </button>
+                      
+                      <!-- Delete Button -->
+                      <button
+                        @click="deleteProduct(product)"
+                        class="action-btn action-btn-delete group"
+                        title="Delete Product"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        <span class="action-btn-text">Delete</span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -234,18 +253,24 @@
                   {{ category.is_active ? 'Active' : 'Inactive' }}
                 </span>
               </div>
-              <div class="mt-4 flex space-x-2">
+              <div class="mt-4 flex gap-2">
                 <button
                   @click="openCategoryModal(category)"
-                  class="text-sm text-primary-600 hover:text-primary-900"
+                  class="action-btn action-btn-edit group flex-1 justify-center"
                 >
-                  Edit
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  <span class="action-btn-text">Edit</span>
                 </button>
                 <button
                   @click="deleteCategory(category)"
-                  class="text-sm text-red-600 hover:text-red-900"
+                  class="action-btn action-btn-delete group flex-1 justify-center"
                 >
-                  Delete
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  <span class="action-btn-text">Delete</span>
                 </button>
               </div>
             </div>
@@ -454,3 +479,282 @@ onMounted(() => {
   fetchCategories();
 });
 </script>
+
+<style scoped>
+/* Action Buttons - Enhanced with depth and hierarchy */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid transparent;
+  cursor: pointer;
+  
+  /* Small shadow for depth - light on top, dark on bottom */
+  box-shadow: 
+    0 1px 2px 0 rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Adjust Stock Button - Cyan/Teal (Information action) */
+.action-btn-adjust {
+  background: linear-gradient(to bottom, #06b6d4, #0891b2);
+  color: white;
+  border-color: #0891b2;
+}
+
+.action-btn-adjust:hover {
+  background: linear-gradient(to bottom, #22d3ee, #06b6d4);
+  
+  /* Bigger shadow on hover for prominence */
+  box-shadow: 
+    0 4px 6px -1px rgba(6, 182, 212, 0.3),
+    0 2px 4px -1px rgba(6, 182, 212, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  
+  transform: translateY(-1px);
+}
+
+.action-btn-adjust:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 1px 2px 0 rgba(0, 0, 0, 0.1),
+    inset 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Edit Button - Blue/Primary (Standard action) */
+.action-btn-edit {
+  background: linear-gradient(to bottom, #3b82f6, #2563eb);
+  color: white;
+  border-color: #2563eb;
+}
+
+.action-btn-edit:hover {
+  background: linear-gradient(to bottom, #60a5fa, #3b82f6);
+  
+  /* Bigger shadow on hover */
+  box-shadow: 
+    0 4px 6px -1px rgba(59, 130, 246, 0.3),
+    0 2px 4px -1px rgba(59, 130, 246, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  
+  transform: translateY(-1px);
+}
+
+.action-btn-edit:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 1px 2px 0 rgba(0, 0, 0, 0.1),
+    inset 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Delete Button - Red/Danger (Destructive action) */
+.action-btn-delete {
+  background: linear-gradient(to bottom, #ef4444, #dc2626);
+  color: white;
+  border-color: #dc2626;
+}
+
+.action-btn-delete:hover {
+  background: linear-gradient(to bottom, #f87171, #ef4444);
+  
+  /* Bigger shadow on hover */
+  box-shadow: 
+    0 4px 6px -1px rgba(239, 68, 68, 0.3),
+    0 2px 4px -1px rgba(239, 68, 68, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  
+  transform: translateY(-1px);
+}
+
+.action-btn-delete:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 1px 2px 0 rgba(0, 0, 0, 0.1),
+    inset 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Icon styling */
+.action-btn svg {
+  flex-shrink: 0;
+  transition: transform 0.2s ease-in-out;
+}
+
+.action-btn:hover svg {
+  transform: scale(1.1);
+}
+
+/* Button text - responsive */
+.action-btn-text {
+  white-space: nowrap;
+}
+
+/* ===================================
+   RESPONSIVE DESIGN - Mobile First
+   =================================== */
+
+/* Mobile: Icon-only buttons for space efficiency */
+@media (max-width: 640px) {
+  .action-btn-text {
+    display: none;
+  }
+  
+  .action-btn {
+    padding: 0.625rem; /* 10px - Larger touch target for mobile */
+    min-width: 2.5rem; /* 40px minimum for touch accessibility */
+    min-height: 2.5rem; /* 40px minimum for touch accessibility */
+    justify-content: center;
+  }
+  
+  .action-btn svg {
+    width: 1.125rem; /* 18px - Larger icons on mobile */
+    height: 1.125rem;
+  }
+}
+
+/* Tablet: Show icons with abbreviated text on larger tablets */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .action-btn {
+    padding: 0.5rem 0.75rem;
+    min-height: 2.25rem; /* 36px touch target */
+  }
+  
+  .action-btn-text {
+    font-size: 0.813rem; /* Slightly smaller text */
+  }
+}
+
+/* Desktop: Full buttons with icon + text */
+@media (min-width: 1025px) {
+  .action-btn {
+    padding: 0.5rem 0.875rem;
+  }
+}
+
+/* Stacking buttons on very small screens */
+@media (max-width: 480px) {
+  .action-btn {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  /* Stack buttons vertically on extra small screens if needed */
+  td .flex {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.375rem;
+  }
+  
+  .action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Focus states for accessibility */
+.action-btn:focus {
+  outline: none;
+}
+
+.action-btn-adjust:focus {
+  box-shadow: 
+    0 0 0 2px white,
+    0 0 0 4px #06b6d4;
+}
+
+.action-btn-edit:focus {
+  box-shadow: 
+    0 0 0 2px white,
+    0 0 0 4px #3b82f6;
+}
+
+.action-btn-delete:focus {
+  box-shadow: 
+    0 0 0 2px white,
+    0 0 0 4px #ef4444;
+}
+
+/* ===================================
+   TABLE RESPONSIVE ENHANCEMENTS
+   =================================== */
+
+/* Reduce table padding on mobile */
+@media (max-width: 768px) {
+  table th,
+  table td {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  /* Hide less critical columns on mobile */
+  table th:nth-child(2), /* SKU */
+  table td:nth-child(2),
+  table th:nth-child(3), /* Category */
+  table td:nth-child(3) {
+    display: none;
+  }
+}
+
+/* Extra small screens - show only essential info */
+@media (max-width: 480px) {
+  table th,
+  table td {
+    padding: 0.75rem 0.5rem !important;
+    font-size: 0.813rem;
+  }
+  
+  /* Further reduce visible columns */
+  table th:nth-child(5), /* Stock */
+  table td:nth-child(5) {
+    display: none;
+  }
+}
+
+/* Smooth scrolling hint for horizontal tables */
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  scroll-behavior: smooth;
+}
+
+/* Add scroll indicator shadow on mobile */
+@media (max-width: 768px) {
+  .overflow-x-auto {
+    position: relative;
+  }
+  
+  .overflow-x-auto::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 2rem;
+    background: linear-gradient(to left, rgba(255, 255, 255, 0.9), transparent);
+    pointer-events: none;
+  }
+}
+
+/* ===================================
+   PERFORMANCE OPTIMIZATIONS
+   =================================== */
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .action-btn,
+  .action-btn svg {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .action-btn {
+    border-width: 2px;
+  }
+}
+</style>

@@ -194,9 +194,9 @@ const error = ref('');
 const fileError = ref('');
 
 const paymentInfo = ref({
-  gcash_enabled: false,
-  gcash_number: '',
-  gcash_name: ''
+  gcash_enabled: true,
+  gcash_number: '09489770597',
+  gcash_name: 'CAFA Hardware Store'
 });
 
 const selectedFile = ref(null);
@@ -222,8 +222,12 @@ const loadPaymentInfo = async () => {
     const response = await axios.get('/api/payment-info');
     paymentInfo.value = response.data.gcash;
     
-    if (!paymentInfo.value.enabled) {
-      error.value = 'GCash payment is currently unavailable. Please choose another payment method.';
+    // Use default values if not configured
+    if (!paymentInfo.value.gcash_number) {
+      paymentInfo.value.gcash_number = '09489770597';
+    }
+    if (!paymentInfo.value.gcash_name) {
+      paymentInfo.value.gcash_name = 'CAFA Hardware Store';
     }
   } catch (err) {
     error.value = 'Failed to load payment information. Please try again.';

@@ -94,25 +94,31 @@
         </template>
 
         <template #actions="{ item }">
-          <div class="flex items-center space-x-2">
+          <div class="flex items-center justify-end gap-2">
+            <!-- Edit Button -->
             <button
               @click="openEditModal(item)"
-              class="text-primary-600 hover:text-primary-900"
+              class="action-btn action-btn-edit group"
               title="Edit user"
             >
-              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
+              <span class="action-btn-text">Edit</span>
             </button>
+            
+            <!-- Delete Button -->
             <button
               @click="deleteUser(item)"
-              class="text-red-600 hover:text-red-900"
+              class="action-btn action-btn-delete group"
               title="Delete user"
               :disabled="item?.id === currentUser?.id"
+              :class="{ 'opacity-50 cursor-not-allowed': item?.id === currentUser?.id }"
             >
-              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
+              <span class="action-btn-text">Delete</span>
             </button>
           </div>
         </template>
@@ -264,7 +270,7 @@ const columns = [
   { key: 'role', label: 'Role', width: '120px' },
   { key: 'is_active', label: 'Status', width: '120px' },
   { key: 'created_at', label: 'Created', width: '150px' },
-  { key: 'actions', label: 'Actions', width: '100px' },
+  // Note: 'actions' column is handled automatically by BaseTable when using #actions slot
 ];
 
 const users = ref([]);
@@ -447,3 +453,164 @@ onMounted(() => {
 });
 </script>
 
+<style scoped>
+/* Action Buttons - Enhanced with depth and hierarchy */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+  border: 1px solid transparent;
+  cursor: pointer;
+  
+  /* Small shadow for depth - light on top, dark on bottom */
+  box-shadow: 
+    0 1px 2px 0 rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Edit Button - Blue/Primary (Standard action) */
+.action-btn-edit {
+  background: linear-gradient(to bottom, #3b82f6, #2563eb);
+  color: white;
+  border-color: #2563eb;
+}
+
+.action-btn-edit:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #60a5fa, #3b82f6);
+  box-shadow: 
+    0 4px 6px -1px rgba(59, 130, 246, 0.3),
+    0 2px 4px -1px rgba(59, 130, 246, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.action-btn-edit:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 
+    0 1px 2px 0 rgba(0, 0, 0, 0.1),
+    inset 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Delete Button - Red/Danger (Destructive action) */
+.action-btn-delete {
+  background: linear-gradient(to bottom, #ef4444, #dc2626);
+  color: white;
+  border-color: #dc2626;
+}
+
+.action-btn-delete:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #f87171, #ef4444);
+  box-shadow: 
+    0 4px 6px -1px rgba(239, 68, 68, 0.3),
+    0 2px 4px -1px rgba(239, 68, 68, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.action-btn-delete:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 
+    0 1px 2px 0 rgba(0, 0, 0, 0.1),
+    inset 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Icon styling */
+.action-btn svg {
+  flex-shrink: 0;
+  transition: transform 0.2s ease-in-out;
+}
+
+.action-btn:hover:not(:disabled) svg {
+  transform: scale(1.1);
+}
+
+/* Button text - responsive */
+.action-btn-text {
+  white-space: nowrap;
+}
+
+/* ===================================
+   RESPONSIVE DESIGN - Mobile First
+   =================================== */
+
+/* Mobile: Icon-only buttons */
+@media (max-width: 640px) {
+  .action-btn-text {
+    display: none;
+  }
+  
+  .action-btn {
+    padding: 0.625rem;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+    justify-content: center;
+  }
+  
+  .action-btn svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+}
+
+/* Tablet: Show icons with text */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .action-btn {
+    padding: 0.5rem 0.75rem;
+    min-height: 2.25rem;
+  }
+  
+  .action-btn-text {
+    font-size: 0.813rem;
+  }
+}
+
+/* Desktop: Full buttons */
+@media (min-width: 1025px) {
+  .action-btn {
+    padding: 0.5rem 0.875rem;
+  }
+}
+
+/* Focus states for accessibility */
+.action-btn:focus {
+  outline: none;
+}
+
+.action-btn-edit:focus {
+  box-shadow: 
+    0 0 0 2px white,
+    0 0 0 4px #3b82f6;
+}
+
+.action-btn-delete:focus {
+  box-shadow: 
+    0 0 0 2px white,
+    0 0 0 4px #ef4444;
+}
+
+/* Disabled state */
+.action-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Performance optimizations */
+@media (prefers-reduced-motion: reduce) {
+  .action-btn,
+  .action-btn svg {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .action-btn {
+    border-width: 2px;
+  }
+}
+</style>

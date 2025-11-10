@@ -52,11 +52,19 @@
     </div>
 
     <!-- Mobile menu -->
-    <div class="md:hidden">
-      <div class="fixed inset-0 flex z-40">
-        <div class="fixed inset-0" @click="$emit('close')">
-          <div class="absolute inset-0 bg-gray-900 opacity-75"></div>
-        </div>
+    <Transition
+      enter-active-class="transition-opacity duration-300 ease-out"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-opacity duration-200 ease-in"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div v-if="isOpen" class="md:hidden">
+        <div class="fixed inset-0 flex z-40">
+          <div class="fixed inset-0" @click="$emit('close')">
+            <div class="absolute inset-0 bg-gray-900 opacity-75"></div>
+          </div>
         <div class="relative flex-1 flex flex-col max-w-xs w-full bg-gradient-to-b from-red-600 to-red-700 shadow-2xl">
           <div class="absolute top-0 right-0 -mr-12 pt-2">
             <button
@@ -127,6 +135,7 @@
         <div class="flex-shrink-0 w-14"></div>
       </div>
     </div>
+    </Transition>
   </div>
 </template>
 
@@ -143,6 +152,17 @@ import {
   UsersIcon
 } from '@heroicons/vue/24/outline';
 import { useAuthStore } from '@/stores/auth';
+
+// Props
+defineProps({
+  isOpen: {
+    type: Boolean,
+    default: false
+  }
+});
+
+// Emits
+defineEmits(['close']);
 
 const route = useRoute();
 const authStore = useAuthStore();
@@ -168,6 +188,4 @@ const navigation = computed(() => {
 const isActive = (path) => {
   return route.path === path;
 };
-
-defineEmits(['close']);
 </script>

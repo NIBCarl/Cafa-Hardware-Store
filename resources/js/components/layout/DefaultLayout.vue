@@ -1,16 +1,19 @@
 <template>
-  <div class="min-h-screen bg-gray-100 flex">
+  <div class="h-screen bg-gray-100 flex overflow-hidden">
     <!-- Sidebar -->
-    <AppSidebar />
+    <AppSidebar 
+      :is-open="sidebarOpen" 
+      @close="closeSidebar" 
+    />
     
     <!-- Main content area -->
-    <div class="flex-1 flex flex-col min-w-0">
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
       <!-- Header -->
-      <AppHeader />
+      <AppHeader @toggle-sidebar="toggleSidebar" />
       
-      <!-- Page content -->
-      <main class="flex-1 overflow-auto">
-        <div class="py-6 px-4 sm:px-6 lg:px-8">
+      <!-- Page content with proper scroll containment -->
+      <main class="flex-1 overflow-y-auto overflow-x-hidden">
+        <div class="py-6 px-4 sm:px-6 lg:px-8 max-w-full">
           <router-view />
         </div>
       </main>
@@ -19,6 +22,18 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import AppHeader from './AppHeader.vue';
 import AppSidebar from './AppSidebar.vue';
+
+// Sidebar state management
+const sidebarOpen = ref(false);
+
+const toggleSidebar = () => {
+  sidebarOpen.value = !sidebarOpen.value;
+};
+
+const closeSidebar = () => {
+  sidebarOpen.value = false;
+};
 </script>

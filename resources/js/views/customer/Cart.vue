@@ -108,7 +108,6 @@
                 >
                   <option value="cash">Cash on Delivery/Pickup</option>
                   <option value="gcash">GCash</option>
-                  <option value="card">Credit/Debit Card</option>
                 </select>
               </div>
 

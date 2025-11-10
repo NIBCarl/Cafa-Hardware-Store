@@ -263,7 +263,6 @@ const getStatusColor = (status) => {
 const formatPaymentMethod = (method) => {
   const methods = {
     cash: 'Cash',
-    card: 'Credit/Debit Card',
     digital_wallet: 'Digital Wallet',
     gcash: 'GCash',
   };

@@ -11,7 +11,7 @@
         </p>
       </div>
       <div class="flex items-center space-x-2">
-        <slot name="actions"></slot>
+        <slot name="header-actions"></slot>
       </div>
     </div>
 
@@ -35,7 +35,7 @@
     </div>
 
     <!-- Table -->
-    <div class="overflow-x-auto bg-gray-50 shadow-inner">
+    <div class="overflow-x-auto bg-gray-50 shadow-inner scroll-container">
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gradient-to-r from-gray-100 to-gray-200">
           <tr>
@@ -300,3 +300,62 @@ const formatValue = (value, format) => {
   }
 };
 </script>
+
+<style scoped>
+/* Smooth scrolling for table */
+.scroll-container {
+  -webkit-overflow-scrolling: touch; /* iOS smooth scrolling */
+  scroll-behavior: smooth;
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #cbd5e0 #f7fafc; /* Firefox */
+}
+
+/* Custom scrollbar for Webkit browsers */
+.scroll-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+  background: #f7fafc;
+  border-radius: 4px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+/* Scroll indicator shadow - indicates more content on the right */
+.scroll-container {
+  position: relative;
+}
+
+.scroll-container::after {
+  content: '';
+  position: sticky;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 3rem;
+  background: linear-gradient(to left, rgba(247, 250, 252, 0.95), transparent);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.scroll-container:not(:hover)::after {
+  opacity: 1;
+}
+
+/* Responsive table improvements */
+@media (max-width: 768px) {
+  .scroll-container::-webkit-scrollbar {
+    height: 4px;
+  }
+}
+</style>

@@ -138,6 +138,14 @@
         </div>
       </template>
 
+      <template #delivery_method="{ item }">
+        <div class="delivery-method">
+          <span :class="getDeliveryMethodClass(item.delivery_method)">
+            {{ getDeliveryMethodLabel(item.delivery_method) }}
+          </span>
+        </div>
+      </template>
+
       <template #status="{ item }">
         <span :class="getStatusClass(item.status)">
           {{ getStatusLabel(item.status) }}
@@ -237,6 +245,14 @@
               {{ getPaymentStatusLabel(selectedOrder.payment_status) }}
             </span>
           </div>
+          <div class="detail-item">
+            <span class="detail-label">Delivery Method:</span>
+            <span class="detail-value">{{ getDeliveryMethodLabel(selectedOrder.delivery_method) }}</span>
+          </div>
+          <div v-if="selectedOrder.delivery_method === 'delivery' && selectedOrder.delivery_address" class="detail-item">
+            <span class="detail-label">Delivery Address:</span>
+            <span class="detail-value">{{ selectedOrder.delivery_address }}</span>
+          </div>
         </div>
 
         <!-- Payment Proof Section -->
@@ -321,9 +337,10 @@
           </table>
         </div>
 
-        <div v-if="selectedOrder.notes" class="notes-section">
+        <div class="notes-section">
           <h3 class="section-title">Notes</h3>
-          <p class="notes-text">{{ selectedOrder.notes }}</p>
+          <p v-if="selectedOrder.notes" class="notes-text">{{ selectedOrder.notes }}</p>
+          <p v-else class="notes-text text-gray-400 italic">No notes provided</p>
         </div>
       </div>
 
@@ -448,6 +465,7 @@ const columns = [
   { key: 'items_count', label: 'Items', width: '80px' },
   { key: 'total_amount', label: 'Total', width: '120px' },
   { key: 'payment_method', label: 'Payment', width: '100px' },
+  { key: 'delivery_method', label: 'Delivery', width: '100px' },
   { key: 'status', label: 'Status', width: '120px' },
   { key: 'created_at', label: 'Date', width: '140px' }
   // Note: 'actions' column is handled automatically by BaseTable when using #actions slot
@@ -667,7 +685,6 @@ const getStatusLabel = (status) => {
 const getPaymentMethodLabel = (method) => {
   const labels = {
     cash: 'Cash',
-    card: 'Card',
     gcash: 'GCash',
     digital_wallet: 'Digital Wallet'
   };
@@ -677,11 +694,26 @@ const getPaymentMethodLabel = (method) => {
 const getPaymentMethodClass = (method) => {
   const classes = {
     cash: 'payment-method-cash',
-    card: 'payment-method-card',
     gcash: 'payment-method-gcash',
     digital_wallet: 'payment-method-digital'
   };
   return classes[method] || 'payment-method-cash';
+};
+
+const getDeliveryMethodLabel = (method) => {
+  const labels = {
+    pickup: 'Pickup',
+    delivery: 'Delivery'
+  };
+  return labels[method] || method;
+};
+
+const getDeliveryMethodClass = (method) => {
+  const classes = {
+    pickup: 'delivery-method-pickup',
+    delivery: 'delivery-method-delivery'
+  };
+  return classes[method] || 'delivery-method-pickup';
 };
 
 const getPaymentStatusClass = (status) => {
@@ -779,6 +811,8 @@ onMounted(() => {
 <style scoped>
 .orders-container {
   padding: 2rem;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .page-header {
@@ -1025,37 +1059,137 @@ onMounted(() => {
   display: inline-block;
 }
 
+/* Enhanced Action Buttons with Gradients and Depth */
 .action-btn-view {
-  background-color: #dbeafe;
-  border-color: #93c5fd;
-  color: #1e40af;
+  background: linear-gradient(to bottom, #60a5fa, #3b82f6);
+  color: white;
+  border-color: #3b82f6;
+  box-shadow: 
+    0 1px 2px 0 rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
 }
 
 .action-btn-view:hover {
-  background-color: #bfdbfe;
-  border-color: #60a5fa;
+  background: linear-gradient(to bottom, #93c5fd, #60a5fa);
+  box-shadow: 
+    0 4px 6px -1px rgba(59, 130, 246, 0.3),
+    0 2px 4px -1px rgba(59, 130, 246, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
 }
 
 .action-btn-edit {
-  background-color: #fef3c7;
-  border-color: #fcd34d;
-  color: #92400e;
+  background: linear-gradient(to bottom, #fbbf24, #f59e0b);
+  color: white;
+  border-color: #f59e0b;
+  box-shadow: 
+    0 1px 2px 0 rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
 }
 
 .action-btn-edit:hover {
-  background-color: #fde68a;
-  border-color: #fbbf24;
+  background: linear-gradient(to bottom, #fcd34d, #fbbf24);
+  box-shadow: 
+    0 4px 6px -1px rgba(245, 158, 11, 0.3),
+    0 2px 4px -1px rgba(245, 158, 11, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
 }
 
 .action-btn-delete {
-  background-color: #fee2e2;
-  border-color: #fca5a5;
-  color: #991b1b;
+  background: linear-gradient(to bottom, #ef4444, #dc2626);
+  color: white;
+  border-color: #dc2626;
+  box-shadow: 
+    0 1px 2px 0 rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
 }
 
 .action-btn-delete:hover {
-  background-color: #fecaca;
-  border-color: #f87171;
+  background: linear-gradient(to bottom, #f87171, #ef4444);
+  box-shadow: 
+    0 4px 6px -1px rgba(239, 68, 68, 0.3),
+    0 2px 4px -1px rgba(239, 68, 68, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 1px 2px 0 rgba(0, 0, 0, 0.1),
+    inset 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Icon animation */
+.action-btn svg {
+  transition: transform 0.2s ease-in-out;
+}
+
+.action-btn:hover svg {
+  transform: scale(1.1);
+}
+
+/* ===================================
+   RESPONSIVE DESIGN - Mobile First
+   =================================== */
+
+/* Mobile: Icon-only buttons */
+@media (max-width: 640px) {
+  .action-label {
+    display: none;
+  }
+  
+  .action-btn {
+    padding: 0.625rem;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+    justify-content: center;
+  }
+  
+  .action-btn svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+}
+
+/* Tablet: Show icons with text */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .action-btn {
+    padding: 0.5rem 0.75rem;
+    min-height: 2.25rem;
+  }
+  
+  .action-label {
+    font-size: 0.813rem;
+  }
+}
+
+/* Stacking buttons on very small screens */
+@media (max-width: 480px) {
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+  
+  .action-btn {
+    width: 100%;
+  }
+}
+
+/* Performance optimizations */
+@media (prefers-reduced-motion: reduce) {
+  .action-btn,
+  .action-btn svg {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .action-btn {
+    border-width: 2px;
+  }
 }
 
 .status-badge {
@@ -1294,11 +1428,6 @@ onMounted(() => {
   color: #065f46;
 }
 
-.payment-method-card {
-  background-color: #dbeafe;
-  color: #1e40af;
-}
-
 .payment-method-gcash {
   background-color: #ddd6fe;
   color: #5b21b6;
@@ -1307,6 +1436,31 @@ onMounted(() => {
 .payment-method-digital {
   background-color: #fce7f3;
   color: #9f1239;
+}
+
+/* Delivery Method Badges (for table) */
+.delivery-method {
+  display: flex;
+  align-items: center;
+}
+
+.delivery-method span {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.delivery-method-pickup {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
+.delivery-method-delivery {
+  background-color: #fef3c7;
+  color: #92400e;
 }
 
 .status-form {
