@@ -37,6 +37,12 @@ export default async function authMiddleware(to, from, next) {
         }
     }
 
+    // Check if route requires specific roles
+    if (to.meta.allowedRoles && !to.meta.allowedRoles.includes(authStore.user?.role)) {
+        console.log('Redirecting to dashboard - insufficient permissions');
+        return next({ name: 'Dashboard' });
+    }
+
     // Check if route requires admin access
     if (to.meta.requiresAdmin && authStore.user?.role !== 'admin') {
         console.log('Redirecting to dashboard - admin access required');

@@ -9,11 +9,16 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Dompdf\Dompdf;
 
 class ReportController extends Controller
 {
     public function stats(Request $request)
     {
+        if ($request->user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $start = $request->start ? Carbon::parse($request->start)->startOfDay() : Carbon::now()->subDays(30)->startOfDay();
         $end = $request->end ? Carbon::parse($request->end)->endOfDay() : Carbon::now()->endOfDay();
 
@@ -80,6 +85,10 @@ class ReportController extends Controller
 
     public function salesTrend(Request $request)
     {
+        if ($request->user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $start = $request->start ? Carbon::parse($request->start)->startOfDay() : Carbon::now()->subDays(30)->startOfDay();
         $end = $request->end ? Carbon::parse($request->end)->endOfDay() : Carbon::now()->endOfDay();
         $interval = $request->interval ?? 'daily';
@@ -112,6 +121,10 @@ class ReportController extends Controller
 
     public function topProducts(Request $request)
     {
+        if ($request->user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $start = $request->start ? Carbon::parse($request->start)->startOfDay() : Carbon::now()->subDays(30)->startOfDay();
         $end = $request->end ? Carbon::parse($request->end)->endOfDay() : Carbon::now()->endOfDay();
 
@@ -137,6 +150,10 @@ class ReportController extends Controller
 
     public function categorySales(Request $request)
     {
+        if ($request->user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $start = $request->start ? Carbon::parse($request->start)->startOfDay() : Carbon::now()->subDays(30)->startOfDay();
         $end = $request->end ? Carbon::parse($request->end)->endOfDay() : Carbon::now()->endOfDay();
 
@@ -162,6 +179,10 @@ class ReportController extends Controller
 
     public function transactions(Request $request)
     {
+        if ($request->user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $start = $request->start ? Carbon::parse($request->start)->startOfDay() : Carbon::now()->subDays(30)->startOfDay();
         $end = $request->end ? Carbon::parse($request->end)->endOfDay() : Carbon::now()->endOfDay();
 
@@ -174,13 +195,89 @@ class ReportController extends Controller
 
     public function export(Request $request)
     {
+        if ($request->user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $start = $request->start ? Carbon::parse($request->start)->startOfDay() : Carbon::now()->subDays(30)->startOfDay();
         $end = $request->end ? Carbon::parse($request->end)->endOfDay() : Carbon::now()->endOfDay();
+        $format = $request->format ?? 'csv';
 
         $transactions = Transaction::with(['items.product', 'staff'])
             ->whereBetween('created_at', [$start, $end])
             ->orderBy('created_at', 'desc')
             ->get();
+
+        if ($format === 'pdf') {
+            $dompdf = new Dompdf();
+
+            // Generate HTML for PDF
+            $html = '
+            <html>
+            <head>
+                <style>
+                    body { font-family: sans-serif; }
+                    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                    th { background-color: #f2f2f2; }
+                    .header { margin-bottom: 20px; }
+                    .header h1 { margin: 0; }
+                    .header p { margin: 5px 0; color: #666; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>Transactions Report</h1>
+                    <p>Date Range: ' . $start->format('M d, Y') . ' - ' . $end->format('M d, Y') . '</p>
+                    <p>Generated on: ' . now()->format('M d, Y h:i A') . '</p>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Payment</th>
+                            <th>Status</th>
+                            <th>Staff</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>';
+
+            $totalAmount = 0;
+            foreach ($transactions as $transaction) {
+                $totalAmount += $transaction->total_amount;
+                $html .= '
+                        <tr>
+                            <td>#' . $transaction->id . '</td>
+                            <td>' . $transaction->created_at->format('Y-m-d H:i') . '</td>
+                            <td>' . ($transaction->customer_phone ?? 'N/A') . '</td>
+                            <td>' . ucwords(str_replace('_', ' ', $transaction->payment_method)) . '</td>
+                            <td>' . ucfirst($transaction->status) . '</td>
+                            <td>' . ($transaction->staff->name ?? 'N/A') . '</td>
+                            <td style="text-align: right;">₱' . number_format($transaction->total_amount, 2) . '</td>
+                        </tr>';
+            }
+
+            $html .= '
+                        <tr>
+                            <td colspan="6" style="text-align: right; font-weight: bold;">Total</td>
+                            <td style="text-align: right; font-weight: bold;">₱' . number_format($totalAmount, 2) . '</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </body>
+            </html>';
+
+            $dompdf->loadHtml($html);
+            $dompdf->setPaper('A4', 'portrait');
+            $dompdf->render();
+
+            return response($dompdf->output(), 200)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'attachment; filename="transactions-report-' . $start->format('Y-m-d') . '-to-' . $end->format('Y-m-d') . '.pdf"');
+        }
 
         // Generate CSV content
         $csvData = "Transaction ID,Date,Customer Phone,Payment Method,Status,Total Amount,Staff,Items\n";

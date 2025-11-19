@@ -47,6 +47,7 @@ const routes = [
         path: 'inventory',
         name: 'Inventory',
         component: () => import('../views/staff/Inventory.vue'),
+        meta: { allowedRoles: ['admin'] },
       },
       {
         path: 'orders',
@@ -57,6 +58,7 @@ const routes = [
         path: 'reports',
         name: 'Reports',
         component: () => import('../views/staff/Reports.vue'),
+        meta: { allowedRoles: ['admin'] },
       },
       {
         path: 'settings',

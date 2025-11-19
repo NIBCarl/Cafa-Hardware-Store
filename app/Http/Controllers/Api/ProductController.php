@@ -119,6 +119,10 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        if (request()->user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         try {
             if ($product->transactionItems()->exists()) {
                 throw ValidationException::withMessages([
@@ -146,6 +150,10 @@ class ProductController extends Controller
 
     public function adjustStock(Request $request, Product $product)
     {
+        if ($request->user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $validated = $request->validate([
             'new_quantity' => 'required|integer|min:0',
             'notes' => 'nullable|string'

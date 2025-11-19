@@ -168,17 +168,28 @@ const route = useRoute();
 const authStore = useAuthStore();
 
 const navigation = computed(() => {
+  const role = authStore.user?.role;
+  
+  // Base items for all staff (including cashier)
   const items = [
     { name: 'Dashboard', to: '/staff/dashboard', icon: HomeIcon },
     { name: 'POS', to: '/staff/pos', icon: ShoppingCartIcon },
-    { name: 'Inventory', to: '/staff/inventory', icon: CubeIcon },
-    { name: 'Orders', to: '/staff/orders', icon: ClipboardDocumentListIcon },
-    { name: 'Reports', to: '/staff/reports', icon: ChartBarIcon },
-    { name: 'Settings', to: '/staff/settings', icon: CogIcon },
   ];
 
-  // Add Users menu for admin only
-  if (authStore.user?.role === 'admin') {
+  // Inventory and Reports for Admin only
+  if (role === 'admin') {
+    items.push({ name: 'Inventory', to: '/staff/inventory', icon: CubeIcon });
+    items.push({ name: 'Reports', to: '/staff/reports', icon: ChartBarIcon });
+  }
+
+  // Orders for all staff
+  items.push({ name: 'Orders', to: '/staff/orders', icon: ClipboardDocumentListIcon });
+  
+  // Settings for all staff (internal components restricted by role)
+  items.push({ name: 'Settings', to: '/staff/settings', icon: CogIcon });
+
+  // Users menu for admin only
+  if (role === 'admin') {
     items.push({ name: 'Users', to: '/staff/users', icon: UsersIcon });
   }
 

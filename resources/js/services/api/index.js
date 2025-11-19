@@ -4,4 +4,5 @@ export { productService as productsApi } from './products';
 export { categoryService as categoriesApi } from './categories';
 export { transactionService as transactionsApi } from './transactions';
 export { userService as usersApi } from './users';
+export { customerManagementApi as customersApi } from './customerManagement';
 export { settingsService as settingsApi } from './settings';

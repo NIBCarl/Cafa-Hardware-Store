@@ -80,6 +80,10 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
+        if (request()->user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         try {
             if ($category->products()->exists()) {
                 throw ValidationException::withMessages([

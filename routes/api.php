@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\SettingsController;
 use App\Http\Controllers\Api\SmsGatewayStatusController;
 use App\Http\Controllers\Api\TransactionController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\Customer\AuthController as CustomerAuthController;
 use App\Http\Controllers\Api\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\Api\Customer\ProductController as CustomerProductController;
@@ -112,5 +113,10 @@ Route::middleware('auth:sanctum')->group(function () {
         // User Management routes
         Route::post('/users/{user}/toggle-status', [UserController::class, 'toggleStatus']);
         Route::apiResource('users', UserController::class);
+
+        // Customer Management routes
+        Route::post('/customers/{customer}/toggle-status', [CustomerController::class, 'toggleStatus']);
+        Route::get('/customers/stats', [CustomerController::class, 'stats']);
+        Route::apiResource('customers', CustomerController::class);
     });
 });

@@ -37,6 +37,7 @@
             >
               <option value="csv">CSV Format</option>
               <option value="xlsx">Excel Format</option>
+              <option value="pdf">PDF Format</option>
             </select>
             <!-- Export Button -->
             <BaseButton
@@ -84,7 +85,7 @@
           :value="stats.lowStockItems"
           format="number"
           :icon="ExclamationTriangleIcon"
-          :link="'/inventory?filter=low-stock'"
+          :link="'/staff/inventory?filter=low-stock'"
           subtitle="Items below threshold"
         />
       </div>
@@ -576,10 +577,22 @@ const exportReport = async () => {
     });
     
     // Determine MIME type and file extension based on format
-    const mimeType = exportFormat.value === 'xlsx' 
-      ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      : 'text/csv';
-    const fileExtension = exportFormat.value === 'xlsx' ? 'xlsx' : 'csv';
+    let mimeType;
+    let fileExtension;
+
+    switch (exportFormat.value) {
+      case 'xlsx':
+        mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        fileExtension = 'xlsx';
+        break;
+      case 'pdf':
+        mimeType = 'application/pdf';
+        fileExtension = 'pdf';
+        break;
+      default:
+        mimeType = 'text/csv';
+        fileExtension = 'csv';
+    }
     
     const blob = new Blob([response.data], { type: mimeType });
     const url = window.URL.createObjectURL(blob);
